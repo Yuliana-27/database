@@ -9,8 +9,8 @@ class Server  {
 
 
          //paths
-         this.basePhat = '/api/v1';
-         this.usersPath =  `${this.basePhath}/users`;
+         this.basePath = '/api/v1';
+         this.usersPath =  `${this.basePath}/users`;
 
          this.middlewares();
          this.routes();
