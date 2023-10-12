@@ -5,6 +5,14 @@ getAll: `
       FROM
         users
 `,
+getByID:`
+SELECT 
+         *
+      FROM
+        users
+        WHERE
+            id=?
+`,
 }
 
 

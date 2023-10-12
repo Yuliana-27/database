@@ -1,6 +1,6 @@
 const {request, reponse} = require('express');
 const usersModel = require('../models/users');
-const pool = require('../db');
+const pool = require('../DB');
 
 const listUsers = async(req = request, res = response)  => {
 let conn;
@@ -23,11 +23,37 @@ catch (error) {
 
 } finally{
     if(conn)
-    conn.end
+    {conn.end();}
 }
 }
 
-    module.exports = listUsers
+
+const listUserByID = async(req = request, res = response)  => {
+    const {id}=req.params;
+    let conn; 
+    
+    try {
+        conn = await pool.getConnection();
+    
+        const user = await conn.query(usersModel.getByID, [id], (err) => {
+            if (err) {
+                throw err;
+                
+            }
+        })
+        res.json(user);
+    } 
+    catch (error) {
+        console.log(error);
+        res.status(500).json(error);
+    
+    } finally{
+        if(conn)
+        {conn.end();}
+    }
+    }
+    
+    module.exports = {listUsers, listUserByID}
 
 
 
