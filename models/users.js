@@ -29,7 +29,7 @@ SELECT
         WHERE
             email=?
 `,
-addaRow: `
+addRow: `
 INSERT INTO 
 users(
    username,

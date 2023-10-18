@@ -109,7 +109,7 @@ const listUserByID = async(req = request, res = response)  => {
             const userAdded = await conn.query(usersModel.addRow, [...user], (err) => {
                 if (err) throw err;
                 })
-                if (userAdd.affecteRows === 0){
+                if (userAdded.affecteRows === 0){
                     throw new Error('User not added')
                 }                                                     //validacion de un nuevo endpoint//
                 res.json({msg: 'USER ADDED SECCESFULLY'});        
@@ -129,3 +129,8 @@ const listUserByID = async(req = request, res = response)  => {
 
   //rutas    - controllers    -     models(BD) //
     
+
+  //modificar o actualizar un registro ya agregado update //pacht se va a utilizar 
+  //hacer el json en body
+  //verificar que no afecte al otro en el username y email
+  //como decirle al servidor como hacer la actualizacion,  utilir el id, utulizar el params 
