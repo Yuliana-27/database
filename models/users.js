@@ -45,6 +45,38 @@ users(
    ?, ?, ?, ?, ?, ?, ?, ?
 )
 `,
+
+updateRow: `
+UPDATE INTO 
+users(
+   username,
+   password,
+   email,
+   name,
+   lastname,
+   phonenumber,
+   role_id,
+   is_active
+  
+)VALUES(
+   ?, ?, ?, ?, ?, ?, ?, ?
+)
+`,
+
+deleteRow:`
+
+UPDATE 
+    users
+ SET
+    is_active=0
+   WHERE
+       id=?
+
+
+`,
+
+
+
 }
 
 

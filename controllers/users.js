@@ -122,14 +122,104 @@ const listUserByID = async(req = request, res = response)  => {
             if(conn)conn.end();
             
         }
-    }
-    
-    module.exports = {listUsers, listUserByID, addUser}
+        }
+
+        //Nuevo EndPoint 4 Modificar o Actualizar un registro ya registrado en nuestra base de datos//
+         const updateUser=async(req = request, res = response) => {
+            const {id} = req.params;
+       
+
+        try {
+            conn = await pool.getConnection();
+
+            const [usernameExists] = await conn.query(usersModel.getByid, [userId], (err) => {
+                if (err) throw err;
+                })
+                if (usernameExists) {
+                    res.status(409).json({msg: 'Username ${username} already exists'});
+                    return;
+                   }
+
+            const [emailExists] = await conn.query(usersModel.getByEmail, [email], (err) => {
+                  if (err) throw err;
+                 })
+                  if (emailExists) {
+                      res.status(409).json({msg: 'Email ${email} already exists'});
+                     return;
+                       }
+
+            const userAdded = await conn.query(usersModel.addRow, [...user], (err) => {
+                if (err) throw err;
+                })
+                if (userAdded.affecteRows === 0){
+                    throw new Error('User not update')
+                }                                                     //validacion de un nuevo endpoint//
+                res.json({msg: 'USER UPDATED SUCCESSFULLY'});        
+        } catch (error) {
+            console.log(error);
+            res.status(500).json(error);
+            return;
+        }finally{
+            
+            if(conn)conn.end();
+            
+        }}
+
+//endpoint 5//para eleminar  un usuario
+        const deleteUser = async(req = request, res = response) => {
+            let conn;
+            const {id} = req.params; 
+
+
+           try {
+
+            conn = await pool.getConnection();
+
+            const [userExists] = await conn.query
+            (usersModel.getByID, 
+                [id], 
+                (err) => {
+                if (err) throw err;
+            });
+
+            if (!userExists || userExists.is_active ===0){
+                res.status(409).json({msg: `User with ID ${id} not found`});
+                     return;
+
+            }
+
+            const userDeleted = await conn.query(
+                usersModel.deleteRow,
+                [id],
+                (err) => {
+                    if (err) throw err;
+                }
+            );
+            
+            if (userDeleted.affecteRows === 0){
+                throw new Error('User not deleted');
+
+            }
+            res.json ({msg: 'User deleted seccesfully'});
+
+           } catch (error) {
+            console.log(error);
+            res.status(500).json(error);
+        } finally{
+            if(conn) (await conn).end();
+
+
+        }
+            
+        }
+             
+        
+    module.exports = {listUsers, listUserByID, addUser, updateUser, deleteUser}
 
 
   //rutas    - controllers    -     models(BD) //
     
-
+//4//
   //modificar o actualizar un registro ya agregado update //pacht se va a utilizar 
   //hacer el json en body
   //verificar que no afecte al otro en el username y email
