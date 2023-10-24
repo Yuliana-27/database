@@ -47,8 +47,8 @@ users(
 `,
 
 updateRow: `
-UPDATE INTO 
-users(
+UPDATE   users
+SET (
    username,
    password,
    email,
@@ -57,9 +57,9 @@ users(
    phonenumber,
    role_id,
    is_active
-  
-)VALUES(
-   ?, ?, ?, ?, ?, ?, ?, ?
+
+WHERE
+   id=?
 )
 `,
 

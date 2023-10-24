@@ -111,7 +111,7 @@ const listUserByID = async(req = request, res = response)  => {
                 })
                 if (userAdded.affecteRows === 0){
                     throw new Error('User not added')
-                }                                                     //validacion de un nuevo endpoint//
+                }                                                   
                 res.json({msg: 'USER ADDED SECCESFULLY'});        
         } catch (error) {
             console.log(error);
@@ -125,45 +125,69 @@ const listUserByID = async(req = request, res = response)  => {
         }
 
         //Nuevo EndPoint 4 Modificar o Actualizar un registro ya registrado en nuestra base de datos//
-         const updateUser=async(req = request, res = response) => {
-            const {id} = req.params;
-       
+        const updateUser = async (req = request, res = response) => {
+            let conn;
+            const { id } = req.params;
+        
+            const {
+                username,
+                password,
+                email,
+                name,
+                lastname,
+                phonenumber = '',
+                role_id,
+                is_active = 1
+            } = req.body;
+        
+            if (!username || !password || !email || !name || !lastname || !role_id) {
+                res.status(400).json({ msg: 'MISSING INFORMATION' });
+                return;
+            }
+        
+            const user = [username, password, email, name, lastname, phonenumber, role_id, is_active, id];
+        
+            try {
+                conn = await pool.getConnection();
+        //
+        const [userExists] = await conn.query
+        (usersModel.getByID, 
+            [id], 
+            (err) => {
+            if (err) throw err;
+        });
 
-        try {
-            conn = await pool.getConnection();
+        if (!userExists || userExists.is_active ===0){
+            res.status(409).json({msg: `User with ID ${id} not found`});
+                 return;
 
-            const [usernameExists] = await conn.query(usersModel.getByid, [userId], (err) => {
+        }
+
+        const userUpdated = await conn.query(
+            usersModel.updateRow,
+            [id],
+            (err) => {
                 if (err) throw err;
-                })
-                if (usernameExists) {
-                    res.status(409).json({msg: 'Username ${username} already exists'});
-                    return;
-                   }
-
-            const [emailExists] = await conn.query(usersModel.getByEmail, [email], (err) => {
-                  if (err) throw err;
-                 })
-                  if (emailExists) {
-                      res.status(409).json({msg: 'Email ${email} already exists'});
-                     return;
-                       }
-
-            const userAdded = await conn.query(usersModel.addRow, [...user], (err) => {
-                if (err) throw err;
-                })
-                if (userAdded.affecteRows === 0){
-                    throw new Error('User not update')
-                }                                                     //validacion de un nuevo endpoint//
-                res.json({msg: 'USER UPDATED SUCCESSFULLY'});        
-        } catch (error) {
-            console.log(error);
-            res.status(500).json(error);
-            return;
-        }finally{
+            }
+        );
+        
+                if (userUpdated.affectedRows === 0) {
+                    throw new Error('User not updated');
+                }
+        
+                res.json({ msg: 'USER UPDATED SUCCESSFULLY' });
+            } catch (error) {
+                console.log(error);
+                res.status(500).json(error);
+                return;
+            } finally {
+                if (conn) conn.end();
+            }
+        }
+        
             
-            if(conn)conn.end();
-            
-        }}
+
+
 
 //endpoint 5//para eleminar  un usuario
         const deleteUser = async(req = request, res = response) => {
