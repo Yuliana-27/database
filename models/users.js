@@ -48,19 +48,18 @@ users(
 
 updateRow: `
 UPDATE   users
-SET (
-   username,
-   password,
-   email,
-   name,
-   lastname,
-   phonenumber,
-   role_id,
-   is_active
+SET 
+   username = ?,
+   password = ?,
+   email = ?,
+   name = ?,
+   lastname = ?,
+   phonenumber = ?,
+   role_id = ?,
+   is_active = ?
 
 WHERE
    id=?
-)
 `,
 
 deleteRow:`
