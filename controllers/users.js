@@ -1,4 +1,5 @@
 const {request, reponse} = require('express');
+const bcrypt = require('bcrypt');
 const usersModel = require('../models/users');
 const pool = require('../DB');
 //1//
@@ -81,8 +82,18 @@ const listUserByID = async(req = request, res = response)  => {
             res.status(400).json({msg: 'MISSING INFORMATION'});
             return;
         }
+        const salRounds = 10;
+        const passwordHash = await bcrypt.hash(password, salRounds);
 
-        const user =[username, password, email, name, lastname, phonenumber, role_id, is_active]
+        const user = [
+            username, 
+            passwordHash, 
+            email, 
+            name, 
+            lastname, 
+            phonenumber, 
+            role_id, 
+            is_active]
         let conn;
 
         try {
@@ -141,9 +152,16 @@ const listUserByID = async(req = request, res = response)  => {
 
             const { id } = req.params;
 
+            let passwordHash;
+            if (password) {
+                const salRounds = 10;
+                passwordHash = await bcrypt.hash(password, salRounds);
+                
+            }
+
             let userNewData = [
                 username,
-                password,
+                passwordHash,
                 email,
                 name,
                 lastname,
@@ -211,7 +229,7 @@ const listUserByID = async(req = request, res = response)  => {
            throw new Error('User not added')
                 } 
 
-                res.json({msg: 'USER ADDED SECCESFULLY'});
+                res.json({msg: 'USER UPDATED SECCESFULLY'});
                 
             } catch (error) {
                 console.log(error);
@@ -222,8 +240,7 @@ const listUserByID = async(req = request, res = response)  => {
             }
         }
         
-            
-
+    
 
 
 //endpoint 5//para eleminar  un usuario
