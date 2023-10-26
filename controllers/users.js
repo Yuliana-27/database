@@ -1,7 +1,8 @@
-const {request, reponse} = require('express');
+const {request, reponse, response} = require('express');
 const bcrypt = require('bcrypt');
 const usersModel = require('../models/users');
 const pool = require('../DB');
+
 //1//
 const listUsers = async(req = request, res = response)  => {
 let conn;
@@ -25,6 +26,7 @@ catch (error) {
     {conn.end();}
 }
 }
+
 //2//
 const listUserByID = async(req = request, res = response)  => {
     const {id}=req.params;
@@ -62,10 +64,8 @@ const listUserByID = async(req = request, res = response)  => {
     }
     }
 
+
     //Nuevo EndPoint 3//
-
-
-
     const addUser=async(req = request, res = response) => {
         const {
             username,
@@ -134,6 +134,7 @@ const listUserByID = async(req = request, res = response)  => {
             
         }
         }
+
 
         //Nuevo EndPoint 4 Modificar o Actualizar un registro ya registrado en nuestra base de datos//
         const updateUser = async (req = request, res = response) => {
@@ -290,9 +291,65 @@ const listUserByID = async(req = request, res = response)  => {
         }
             
         }
+
+//endpoint 6 //
+        const signInUser = async (req = request, res = response) => {
+            let conn;
+
+            const {username, password} = req.body;
+
+            conn = await pool.getConnection();
+
+
+            try {
+                if(!username || !password){
+                    res.status(400).json({msg: 'YOU NEED MUST SEND USERNAME AND PASSWORD'});
+                    return;
+    
+                }
+    
+                const [user]= await conn.query(usersModel.getByUsername,
+                    [username],
+                    (err) =>{
+                        if(err)throw err;
+                    });
+    
+                    if (!user) {
+                        res.status(400).json({msg: `WRONG USERNAME OR PASSWORD`});
+                        return;
+                        
+                    }
+    
+                    const passwordOK = await bcrypt.compare(password, user.password);
+
+                    if (!passwordOK) {
+                        res.status(400).json({msg: `WRONG USERNAME OR PASSWORD`});
+                        return;  
+                    }
+
+                    delete(user.password);
+                    delete(user.create_at);
+                    delete(user.updated_at);
+
+                    res.json(user);
+            } catch (error) {
+                console.log(error);
+                res.status(500).json(error);
+
+            }finally{
+                if(conn)conn.end();
+            }
+        }
              
         
-    module.exports = {listUsers, listUserByID, addUser, updateUser, deleteUser}
+    module.exports = {
+        listUsers,
+        listUserByID,
+        addUser,
+        updateUser,
+        deleteUser,
+        signInUser,
+     }
 
 
   //rutas    - controllers    -     models(BD) //
