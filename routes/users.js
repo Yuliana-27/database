@@ -5,7 +5,8 @@ const {listUsers,
      addUser, 
      updateUser,
     deleteUser,
-    signInUser} = require('../controllers/users');
+    signInUser,
+     verifyToken} = require('../controllers/users');
 
 
 router.get('/', listUsers);                      //get= // obtener////
@@ -14,6 +15,7 @@ router.post('/', signInUser);
 router.put('/', addUser);
 router.patch('/:id', updateUser);
 router.delete('/:id', deleteUser);
+router.post('/verify', verifyToken);
 
 
 
